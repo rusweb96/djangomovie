@@ -2,18 +2,78 @@ from django.contrib import admin
 from .models import Actor, Category, Genre, Movie, RatingStar, Reviews, Rating, MovieShots
 
 
-admin.site.register(Actor)
+class ReviewInLine(admin.TabularInline):
+    model = Reviews
+    extra = 1
+    readonly_fields = ('name', 'email')
 
-admin.site.register(Category)
 
-admin.site.register(Genre)
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'url')
+    list_display_links = ('name',)
 
-admin.site.register(Movie)
+
+@admin.register(Movie)
+class MovieAdmin(admin.ModelAdmin):
+    list_display = ('title', 'category', 'url', 'draft')
+    list_filter = ('category', 'year')
+    search_fields = ('title', 'category__name',)
+    list_editable = ('draft',)
+    # fields = (('actors', 'genre', 'directors'),)
+    fieldsets = (
+        (None, {
+            "fields": (("title", "tagline"),)
+        }),
+        (None, {
+            "fields": ("description", "poster")
+        }),
+        (None, {
+            "fields": (("year", "world_primer", "country"),)
+        }),
+        ("Actors", {
+            "classes": ("collapse",),
+            "fields": (("actors", "directors", "genre", "category"),)
+        }),
+        (None, {
+            "fields": (("budget", "fees_in_usa", "fees_in_world"),)
+        }),
+        ("Options", {
+            "fields": (("url", "draft"),)
+        }),
+    )
+    inlines = [ReviewInLine]
+    save_on_top = True
+
+
+@admin.register(Reviews)
+class ReviewsAdmin(admin.ModelAdmin):
+    list_display = ('text', 'name', 'email', 'movie')
+    readonly_fields = ('name', 'email')
+
+
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+    """Жанры"""
+    list_display = ("name", "url")
+
+
+@admin.register(Actor)
+class ActorAdmin(admin.ModelAdmin):
+    """Актеры"""
+    list_display = ("name", "age")
+
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    """Рейтинг"""
+    list_display = ("movie", "ip")
+
+
+@admin.register(MovieShots)
+class MovieShotsAdmin(admin.ModelAdmin):
+    """Кадры из фильма"""
+    list_display = ("title", "movie")
+
 
 admin.site.register(RatingStar)
-
-admin.site.register(Reviews)
-
-admin.site.register(Rating)
-
-admin.site.register(MovieShots)
