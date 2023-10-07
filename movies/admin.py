@@ -1,5 +1,15 @@
 from django.contrib import admin
+from django import forms
 from .models import Actor, Category, Genre, Movie, RatingStar, Reviews, Rating, MovieShots
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
+
+
+class MovieAdminForm(forms.ModelForm):
+    description = forms.CharField(label="Описание", widget=CKEditorUploadingWidget())
+
+    class Meta:
+        model = Movie
+        fields = '__all__'
 
 
 class ReviewInLine(admin.TabularInline):
@@ -20,6 +30,7 @@ class MovieAdmin(admin.ModelAdmin):
     list_filter = ('category', 'year')
     search_fields = ('title', 'category__name',)
     list_editable = ('draft',)
+    form = MovieAdminForm
     # fields = (('actors', 'genre', 'directors'),)
     fieldsets = (
         (None, {
